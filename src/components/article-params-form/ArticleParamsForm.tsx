@@ -12,8 +12,10 @@ import clsx from 'clsx';
 import {
 	ArticleStateType,
 	OptionType,
+	StyleType,
 	backgroundColors,
 	contentWidthArr,
+	defaultArticleState,
 	fontColors,
 	fontFamilyOptions,
 	fontSizeOptions,
@@ -21,25 +23,35 @@ import {
 import { useOutsideClickClose } from './hooks/useOutsideClickClose';
 
 export type ArticleParamsFormProps = {
-	formState: {
-		fontFamilyOption: OptionType;
-		fontColor: OptionType;
-		backgroundColor: OptionType;
-		contentWidth: OptionType;
-		fontSizeOption: OptionType;
-	};
-	handleChange: (type: keyof ArticleStateType, value: OptionType) => void;
-	handleResetForm: () => void;
-	handleFormSubmit: (event: SyntheticEvent) => void;
+	generateStyle: (articleStyle: ArticleStateType) => StyleType;
+	setStyle: React.Dispatch<React.SetStateAction<StyleType>>;
 };
 
 export const ArticleParamsForm = (props: ArticleParamsFormProps) => {
 	const [isOpen, setIsOpen] = useState(false);
+	const [formState, setFormState] = useState(defaultArticleState);
 	const rootRef = useRef<HTMLDivElement>(null);
 
 	const articleParamsFormStyle = clsx(styles.container, {
 		[styles.container_open]: isOpen,
 	});
+
+	const handleResetForm = () => {
+		setFormState(defaultArticleState);
+		props.setStyle(props.generateStyle(defaultArticleState));
+	};
+
+	const handleChange = (type: keyof ArticleStateType, value: OptionType) => {
+		setFormState({
+			...formState,
+			[type]: value,
+		});
+	};
+
+	const handleFormSubmit = (event: SyntheticEvent) => {
+		event?.preventDefault();
+		props.setStyle(props.generateStyle(formState));
+	};
 
 	useOutsideClickClose({
 		isOpen,
@@ -56,58 +68,54 @@ export const ArticleParamsForm = (props: ArticleParamsFormProps) => {
 				}}
 			/>
 			<aside className={articleParamsFormStyle}>
-				<form className={styles.form} onSubmit={props.handleFormSubmit}>
+				<form className={styles.form} onSubmit={handleFormSubmit}>
 					<Text as={'h2'} size={31} weight={800} uppercase={true}>
 						Задайте параметры
 					</Text>
 					<Select
 						title='Шрифт'
-						selected={props.formState.fontFamilyOption}
+						selected={formState.fontFamilyOption}
 						options={fontFamilyOptions}
 						onChange={(option) => {
-							props.handleChange('fontFamilyOption', option);
+							handleChange('fontFamilyOption', option);
 						}}
 					/>
 					<RadioGroup
 						title='Размер'
-						selected={props.formState.fontSizeOption}
+						selected={formState.fontSizeOption}
 						options={fontSizeOptions}
 						name='fontSize'
 						onChange={(option) => {
-							props.handleChange('fontSizeOption', option);
+							handleChange('fontSizeOption', option);
 						}}
 					/>
 					<Select
 						title='Цвет шрифта'
-						selected={props.formState.fontColor}
+						selected={formState.fontColor}
 						options={fontColors}
 						onChange={(option) => {
-							props.handleChange('fontColor', option);
+							handleChange('fontColor', option);
 						}}
 					/>
 					<Separator />
 					<Select
 						title='Цвет фона'
-						selected={props.formState.backgroundColor}
+						selected={formState.backgroundColor}
 						options={backgroundColors}
 						onChange={(option) => {
-							props.handleChange('backgroundColor', option);
+							handleChange('backgroundColor', option);
 						}}
 					/>
 					<Select
 						title='Ширина контента'
-						selected={props.formState.contentWidth}
+						selected={formState.contentWidth}
 						options={contentWidthArr}
 						onChange={(option) => {
-							props.handleChange('contentWidth', option);
+							handleChange('contentWidth', option);
 						}}
 					/>
 					<div className={styles.bottomContainer}>
-						<Button
-							title='Сбросить'
-							type='reset'
-							onClick={props.handleResetForm}
-						/>
+						<Button title='Сбросить' type='reset' onClick={handleResetForm} />
 						<Button title='Применить' type='submit' />
 					</div>
 				</form>

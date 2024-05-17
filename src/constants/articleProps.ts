@@ -6,7 +6,17 @@ export const fontFamilyClasses = [
 	'merriweather',
 ] as const;
 
+export const styleVariables = [
+	'--font-family',
+	'--font-size',
+	'--font-color',
+	'--container-width',
+	'--bg-color',
+] as const;
+
 export type FontFamiliesClasses = (typeof fontFamilyClasses)[number];
+
+export type StyleVariables = (typeof styleVariables)[number];
 
 export type OptionType = {
 	title: string;
@@ -177,3 +187,5 @@ export const defaultArticleState = {
 };
 
 export type ArticleStateType = typeof defaultArticleState;
+
+export type StyleType = { [key in StyleVariables]: string };
